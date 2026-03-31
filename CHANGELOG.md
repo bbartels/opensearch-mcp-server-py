@@ -5,6 +5,8 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Unreleased]
 ### Added
 
+- Adds readOnlyHint annotation to readonly tools
+
 ### Fixed
 
 ### Removed
