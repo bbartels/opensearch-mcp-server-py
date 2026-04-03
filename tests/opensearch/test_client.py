@@ -91,15 +91,16 @@ class TestOpenSearchClient:
 
         # Assert
         assert client == mock_client
-        mock_opensearch.assert_called_once_with(
-            hosts=['https://test-opensearch-domain.com'],
-            use_ssl=True,
-            verify_certs=True,
-            connection_class=BufferedAsyncHttpConnection,
-            timeout=30,
-            max_response_size=None,  # No limit by default
-            http_auth=('test-user', 'test-password'),
-        )
+        mock_opensearch.assert_called_once()
+        call_kwargs = mock_opensearch.call_args[1]
+        assert call_kwargs['hosts'] == ['https://test-opensearch-domain.com']
+        assert call_kwargs['use_ssl'] is True
+        assert call_kwargs['verify_certs'] is True
+        assert call_kwargs['connection_class'] == BufferedAsyncHttpConnection
+        assert call_kwargs['timeout'] == 30
+        assert call_kwargs['max_response_size'] is None  # No limit by default
+        assert call_kwargs['headers']['user-agent'].startswith('opensearch-mcp-server-py/')
+        assert call_kwargs['http_auth'] == ('test-user', 'test-password')
 
     @patch('opensearch.client.AsyncOpenSearch')
     @patch('opensearch.client.boto3.Session')
@@ -199,14 +200,16 @@ class TestOpenSearchClient:
 
         # Assert
         assert client == mock_client
-        mock_opensearch.assert_called_once_with(
-            hosts=['https://test-opensearch-domain.com'],
-            use_ssl=True,
-            verify_certs=True,
-            connection_class=BufferedAsyncHttpConnection,
-            timeout=30,
-            max_response_size=None,  # No limit by default
-        )
+        mock_opensearch.assert_called_once()
+        call_kwargs = mock_opensearch.call_args[1]
+        assert call_kwargs['hosts'] == ['https://test-opensearch-domain.com']
+        assert call_kwargs['use_ssl'] is True
+        assert call_kwargs['verify_certs'] is True
+        assert call_kwargs['connection_class'] == BufferedAsyncHttpConnection
+        assert call_kwargs['timeout'] == 30
+        assert call_kwargs['max_response_size'] is None  # No limit by default
+        assert call_kwargs['headers']['user-agent'].startswith('opensearch-mcp-server-py/')
+        assert 'http_auth' not in call_kwargs
 
     @patch('opensearch.client._initialize_client_single_mode')
     def test_initialize_client_with_timeout_env(self, mock_init):

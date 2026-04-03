@@ -9,6 +9,7 @@ authentication methods and connection modes (single vs multi-cluster).
 """
 
 import boto3
+import importlib.metadata
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -32,6 +33,11 @@ OPENSEARCH_SERVICE = 'es'
 OPENSEARCH_SERVERLESS_SERVICE = 'aoss'
 DEFAULT_TIMEOUT = 30
 DEFAULT_SSL_VERIFY = True
+try:
+    _VERSION = importlib.metadata.version('opensearch-mcp-server-py')
+except importlib.metadata.PackageNotFoundError:
+    _VERSION = 'unknown'
+USER_AGENT = f'opensearch-mcp-server-py/{_VERSION}'
 
 
 # Import custom connection classes and exceptions
@@ -492,6 +498,7 @@ def _create_opensearch_client(
         'connection_class': BufferedAsyncHttpConnection,
         'timeout': timeout,
         'max_response_size': response_size_limit,
+        'headers': {'user-agent': USER_AGENT},
     }
     
     if response_size_limit is not None:
