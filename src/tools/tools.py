@@ -1045,6 +1045,8 @@ TOOL_REGISTRY = {
         'min_version': '3.1.0',
         'http_methods': 'PUT',
         'read_only': False,
+        'destructive': False,
+        'idempotent': True,
     },
     'SampleQuerySetTool': {
         'display_name': 'SampleQuerySetTool',
@@ -1055,6 +1057,8 @@ TOOL_REGISTRY = {
         'min_version': '3.1.0',
         'http_methods': 'POST',
         'read_only': False,
+        'destructive': False,
+        'idempotent': False,
     },
     'DeleteQuerySetTool': {
         'display_name': 'DeleteQuerySetTool',
@@ -1065,6 +1069,8 @@ TOOL_REGISTRY = {
         'min_version': '3.1.0',
         'http_methods': 'DELETE',
         'read_only': False,
+        'destructive': True,
+        'idempotent': True,
     },
     'GetExperimentTool': {
         'display_name': 'GetExperimentTool',
@@ -1091,6 +1097,8 @@ TOOL_REGISTRY = {
         'min_version': '3.1.0',
         'http_methods': 'PUT',
         'read_only': False,
+        'destructive': False,
+        'idempotent': True,
     },
     'DeleteExperimentTool': {
         'display_name': 'DeleteExperimentTool',
@@ -1101,6 +1109,8 @@ TOOL_REGISTRY = {
         'min_version': '3.1.0',
         'http_methods': 'DELETE',
         'read_only': False,
+        'destructive': True,
+        'idempotent': True,
     },
     'SearchQuerySetsTool': {
         'display_name': 'SearchQuerySetsTool',
@@ -1167,6 +1177,8 @@ TOOL_REGISTRY = {
         'min_version': '1.0.0',
         'http_methods': 'GET, POST, PUT, DELETE, HEAD, PATCH',
         'read_only': False,
+        'destructive': True,
+        'idempotent': False,
     },
     'CreateSearchConfigurationTool': {
         'display_name': 'CreateSearchConfigurationTool',
@@ -1178,6 +1190,8 @@ TOOL_REGISTRY = {
         'min_version': '3.1.0',
         'http_methods': 'PUT',
         'read_only': False,
+        'destructive': False,
+        'idempotent': True,
     },
     'GetSearchConfigurationTool': {
         'display_name': 'GetSearchConfigurationTool',
@@ -1198,6 +1212,8 @@ TOOL_REGISTRY = {
         'min_version': '3.1.0',
         'http_methods': 'DELETE',
         'read_only': False,
+        'destructive': True,
+        'idempotent': True,
     },
     'GetJudgmentListTool': {
         'display_name': 'GetJudgmentListTool',
@@ -1219,6 +1235,8 @@ TOOL_REGISTRY = {
         'min_version': '3.1.0',
         'http_methods': 'PUT',
         'read_only': False,
+        'destructive': False,
+        'idempotent': True,
     },
     'CreateUBIJudgmentListTool': {
         'display_name': 'CreateUBIJudgmentListTool',
@@ -1230,6 +1248,8 @@ TOOL_REGISTRY = {
         'min_version': '3.1.0',
         'http_methods': 'PUT',
         'read_only': False,
+        'destructive': False,
+        'idempotent': True,
     },
     'DeleteJudgmentListTool': {
         'display_name': 'DeleteJudgmentListTool',
@@ -1240,6 +1260,8 @@ TOOL_REGISTRY = {
         'min_version': '3.1.0',
         'http_methods': 'DELETE',
         'read_only': False,
+        'destructive': True,
+        'idempotent': True,
     },
     'CreateLLMJudgmentListTool': {
         'display_name': 'CreateLLMJudgmentListTool',
@@ -1252,5 +1274,7 @@ TOOL_REGISTRY = {
         'min_version': '3.1.0',
         'http_methods': 'PUT',
         'read_only': False,
+        'destructive': False,
+        'idempotent': True,
     },
 }

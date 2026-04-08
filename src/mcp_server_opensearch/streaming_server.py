@@ -21,7 +21,7 @@ from starlette.types import Scope, Receive, Send
 from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from tools.tools import TOOL_REGISTRY
 from tools.config import apply_custom_tool_config
-from tools.utils import is_read_only_tool
+from tools.utils import is_read_only_tool, is_destructive_tool, is_idempotent_tool
 
 
 async def create_mcp_server(
@@ -67,7 +67,12 @@ async def create_mcp_server(
                     name=tool_info.get('display_name', tool_name),
                     description=tool_info['description'],
                     inputSchema=tool_info['input_schema'],
-                    annotations=ToolAnnotations(readOnlyHint=is_read_only_tool(tool_info)),
+                    annotations=ToolAnnotations(
+                        readOnlyHint=is_read_only_tool(tool_info),
+                        destructiveHint=is_destructive_tool(tool_info),
+                        idempotentHint=is_idempotent_tool(tool_info),
+                        openWorldHint=False,
+                    ),
                 )
             )
         return tools

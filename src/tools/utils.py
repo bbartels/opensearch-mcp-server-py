@@ -51,6 +51,14 @@ def load_yaml_config(filter_path):
         return None
 
 
+def _parse_http_methods(tool_info: dict) -> set:
+    """Parse the http_methods field of a tool into a set of uppercase method strings."""
+    http_methods = tool_info.get('http_methods', '')
+    if isinstance(http_methods, str):
+        return {m.strip().upper() for m in http_methods.split(',') if m.strip()}
+    return {m.upper() for m in http_methods}
+
+
 def is_read_only_tool(tool_info: dict) -> bool:
     """Determine if a tool is read-only based on semantic metadata.
 
@@ -68,12 +76,56 @@ def is_read_only_tool(tool_info: dict) -> bool:
     if explicit is not None:
         return bool(explicit)
 
-    http_methods = tool_info.get('http_methods', '')
-    if isinstance(http_methods, str):
-        methods = {m.strip().upper() for m in http_methods.split(',') if m.strip()}
-    else:
-        methods = {m.upper() for m in http_methods}
-    return methods == {'GET'}
+    return _parse_http_methods(tool_info) == {'GET'}
+
+
+def is_destructive_tool(tool_info: dict) -> bool:
+    """Determine if a tool may perform destructive updates to its environment.
+
+    Prefers explicit destructive metadata when present. Falls back to checking
+    whether DELETE is among the tool's HTTP methods.
+
+    Per the MCP spec, destructiveHint is meaningful only when readOnlyHint is False.
+    Default per spec is True (assume destructive when unknown).
+
+    Args:
+        tool_info (dict): Tool metadata containing optional 'destructive'
+            and 'http_methods' keys.
+
+    Returns:
+        bool: True if the tool may be destructive, False if it is additive-only.
+    """
+    explicit = tool_info.get('destructive')
+    if explicit is not None:
+        return bool(explicit)
+
+    return 'DELETE' in _parse_http_methods(tool_info)
+
+
+def is_idempotent_tool(tool_info: dict) -> bool:
+    """Determine if a tool is idempotent (repeated calls with the same arguments
+    have no additional effect on its environment).
+
+    Prefers explicit idempotent metadata when present. Falls back to checking
+    whether all of the tool's HTTP methods are in the set of HTTP-idempotent
+    methods (GET, HEAD, PUT, DELETE).
+
+    Per the MCP spec, idempotentHint is meaningful only when readOnlyHint is False.
+    Default per spec is False.
+
+    Args:
+        tool_info (dict): Tool metadata containing optional 'idempotent'
+            and 'http_methods' keys.
+
+    Returns:
+        bool: True if the tool is idempotent, False otherwise.
+    """
+    explicit = tool_info.get('idempotent')
+    if explicit is not None:
+        return bool(explicit)
+
+    methods = _parse_http_methods(tool_info)
+    return bool(methods) and methods.issubset({'GET', 'HEAD', 'PUT', 'DELETE'})
 
 
 def validate_tools(tool_list, display_lookup, source_name):

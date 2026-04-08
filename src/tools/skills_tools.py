@@ -92,6 +92,8 @@ SKILLS_TOOLS_REGISTRY = {
         'min_version': '3.3.0',
         'http_methods': 'POST',
         'read_only': False,
+        'destructive': False,
+        'idempotent': True,
     },
     'LogPatternAnalysisTool': {
         'display_name': 'LogPatternAnalysisTool',
@@ -102,5 +104,7 @@ SKILLS_TOOLS_REGISTRY = {
         'min_version': '3.3.0',
         'http_methods': 'POST',
         'read_only': False,
+        'destructive': False,
+        'idempotent': True,
     },
 }
