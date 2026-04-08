@@ -5,7 +5,8 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Unreleased]
 ### Added
 
-- Adds readOnlyHint annotation to readonly tools
+- Adds readOnlyHint annotation to readonly tools ([#205](https://github.com/opensearch-project/opensearch-mcp-server-py/pull/205))
+- Adds destructiveHint, idempotentHint, and openWorldHint MCP annotations to all tools ([#205](https://github.com/opensearch-project/opensearch-mcp-server-py/pull/205))
 
 ### Fixed
 

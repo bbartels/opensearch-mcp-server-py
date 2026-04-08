@@ -179,14 +179,38 @@ async def test_list_tools_readonly_hint(mock_generate_tools):
             'args_model': Mock(),
             'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
             'http_methods': 'GET',
+            'read_only': True,
         },
-        'WriteTool': {
-            'display_name': 'WriteTool',
-            'description': 'A write tool',
+        'ReadOnlySearchTool': {
+            'display_name': 'ReadOnlySearchTool',
+            'description': 'A read-only search tool supporting GET and POST',
             'input_schema': {'type': 'object'},
             'args_model': Mock(),
             'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
-            'http_methods': 'POST',
+            'http_methods': 'GET, POST',
+            'read_only': True,
+        },
+        'WriteTool': {
+            'display_name': 'WriteTool',
+            'description': 'A non-destructive idempotent write tool (PUT)',
+            'input_schema': {'type': 'object'},
+            'args_model': Mock(),
+            'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
+            'http_methods': 'PUT',
+            'read_only': False,
+            'destructive': False,
+            'idempotent': True,
+        },
+        'DeleteTool': {
+            'display_name': 'DeleteTool',
+            'description': 'A destructive idempotent tool (DELETE)',
+            'input_schema': {'type': 'object'},
+            'args_model': Mock(),
+            'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
+            'http_methods': 'DELETE',
+            'read_only': False,
+            'destructive': True,
+            'idempotent': True,
         },
     }
 
@@ -228,8 +252,24 @@ async def test_list_tools_readonly_hint(mock_generate_tools):
     )
     tools = {t.name: t for t in result.root.tools}
 
+    # readOnlyHint
     assert tools['ReadOnlyTool'].annotations.readOnlyHint is True
+    assert tools['ReadOnlySearchTool'].annotations.readOnlyHint is True
     assert tools['WriteTool'].annotations.readOnlyHint is False
+    assert tools['DeleteTool'].annotations.readOnlyHint is False
+
+    # destructiveHint
+    assert tools['WriteTool'].annotations.destructiveHint is False
+    assert tools['DeleteTool'].annotations.destructiveHint is True
+
+    # idempotentHint
+    assert tools['WriteTool'].annotations.idempotentHint is True
+    assert tools['DeleteTool'].annotations.idempotentHint is True
+
+    # openWorldHint — all OpenSearch tools target a specific cluster, never open world
+    assert tools['ReadOnlyTool'].annotations.openWorldHint is False
+    assert tools['WriteTool'].annotations.openWorldHint is False
+    assert tools['DeleteTool'].annotations.openWorldHint is False
 
 
 @pytest.mark.asyncio
