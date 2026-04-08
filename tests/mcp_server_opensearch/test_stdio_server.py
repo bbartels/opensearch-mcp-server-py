@@ -179,6 +179,16 @@ async def test_list_tools_readonly_hint(mock_generate_tools):
             'args_model': Mock(),
             'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
             'http_methods': 'GET',
+            'read_only': True,
+        },
+        'ReadOnlySearchTool': {
+            'display_name': 'ReadOnlySearchTool',
+            'description': 'A read-only search tool supporting GET and POST',
+            'input_schema': {'type': 'object'},
+            'args_model': Mock(),
+            'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
+            'http_methods': 'GET, POST',
+            'read_only': True,
         },
         'WriteTool': {
             'display_name': 'WriteTool',
@@ -187,6 +197,7 @@ async def test_list_tools_readonly_hint(mock_generate_tools):
             'args_model': Mock(),
             'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
             'http_methods': 'POST',
+            'read_only': False,
         },
     }
 
@@ -229,6 +240,7 @@ async def test_list_tools_readonly_hint(mock_generate_tools):
     tools = {t.name: t for t in result.root.tools}
 
     assert tools['ReadOnlyTool'].annotations.readOnlyHint is True
+    assert tools['ReadOnlySearchTool'].annotations.readOnlyHint is True
     assert tools['WriteTool'].annotations.readOnlyHint is False
 
 

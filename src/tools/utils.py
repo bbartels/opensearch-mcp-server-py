@@ -52,17 +52,22 @@ def load_yaml_config(filter_path):
 
 
 def is_read_only_tool(tool_info: dict) -> bool:
-    """Determine if a tool is read-only based on its HTTP methods metadata.
+    """Determine if a tool is read-only based on semantic metadata.
 
-    A tool is considered read-only when its http_methods metadata consists
-    exclusively of GET. This is used to set the MCP readOnlyHint annotation.
+    Prefers explicit read_only metadata when present. Falls back to a
+    GET-only http_methods heuristic for backward compatibility.
 
     Args:
-        tool_info (dict): Tool metadata containing an optional 'http_methods' key.
+        tool_info (dict): Tool metadata containing optional 'read_only'
+            and 'http_methods' keys.
 
     Returns:
-        bool: True if the tool only uses GET, False otherwise.
+        bool: True if the tool is read-only, False otherwise.
     """
+    explicit = tool_info.get('read_only')
+    if explicit is not None:
+        return bool(explicit)
+
     http_methods = tool_info.get('http_methods', '')
     if isinstance(http_methods, str):
         methods = {m.strip().upper() for m in http_methods.split(',') if m.strip()}
