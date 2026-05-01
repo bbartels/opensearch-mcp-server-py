@@ -206,6 +206,7 @@ def generate_tool_from_group(base_name: str, endpoints: List[Dict]) -> Dict[str,
     # Use the description from the first endpoint in the group
     details = endpoints[0]['details']
     description = details.get('description', '')
+    tool_name = f'{base_name.replace("_", "")}Tool'
 
     # Extract version information
     min_version = details.get('x-version-added', '0.0.0')
@@ -214,6 +215,11 @@ def generate_tool_from_group(base_name: str, endpoints: List[Dict]) -> Dict[str,
     # Get the HTTP method(s) used by the endpoints
     methods = set(endpoint['method'].upper() for endpoint in endpoints)
     http_methods = ', '.join(sorted(methods))
+    read_only_hint = methods == {'GET'} or tool_name in {
+        'CountTool',
+        'ExplainTool',
+        'MsearchTool',
+    }
 
     all_parameters, path_parameters, required_parameters = extract_parameters(endpoints)
     # Create Pydantic model for arguments
@@ -225,7 +231,6 @@ def generate_tool_from_group(base_name: str, endpoints: List[Dict]) -> Dict[str,
 
     # Create the tool function that will execute the OpenSearch API
     async def tool_func(params: BaseModel) -> list[TextContent]:
-        tool_name = f'{base_name.replace("_", "")}Tool'
         try:
             from opensearch.client import get_opensearch_client
             params_dict = params.model_dump() if hasattr(params, 'model_dump') else {}
@@ -295,6 +300,7 @@ def generate_tool_from_group(base_name: str, endpoints: List[Dict]) -> Dict[str,
         'min_version': min_version,
         'max_version': max_version,
         'http_methods': http_methods,
+        'read_only_hint': read_only_hint,
     }
 
 

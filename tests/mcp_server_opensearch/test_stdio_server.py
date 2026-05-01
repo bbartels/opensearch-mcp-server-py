@@ -167,7 +167,7 @@ async def test_list_tools(mock_server, mock_stdio, mock_tool_registry, mock_gene
 
 @pytest.mark.asyncio
 async def test_list_tools_readonly_hint(mock_generate_tools):
-    """Test that list_tools sets readOnlyHint=True for GET-only tools and False otherwise."""
+    """Test that list_tools uses explicit read_only_hint values for MCP annotations."""
     from mcp.server import Server as RealServer
     from mcp.types import ListToolsRequest
 
@@ -179,6 +179,7 @@ async def test_list_tools_readonly_hint(mock_generate_tools):
             'args_model': Mock(),
             'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
             'http_methods': 'GET',
+            'read_only_hint': True,
         },
         'WriteTool': {
             'display_name': 'WriteTool',
@@ -187,6 +188,16 @@ async def test_list_tools_readonly_hint(mock_generate_tools):
             'args_model': Mock(),
             'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
             'http_methods': 'POST',
+            'read_only_hint': False,
+        },
+        'LogicalReadOnlyPostTool': {
+            'display_name': 'LogicalReadOnlyPostTool',
+            'description': 'A logically read-only POST tool',
+            'input_schema': {'type': 'object'},
+            'args_model': Mock(),
+            'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
+            'http_methods': 'POST',
+            'read_only_hint': True,
         },
     }
 
@@ -230,6 +241,7 @@ async def test_list_tools_readonly_hint(mock_generate_tools):
 
     assert tools['ReadOnlyTool'].annotations.readOnlyHint is True
     assert tools['WriteTool'].annotations.readOnlyHint is False
+    assert tools['LogicalReadOnlyPostTool'].annotations.readOnlyHint is True
 
 
 @pytest.mark.asyncio
