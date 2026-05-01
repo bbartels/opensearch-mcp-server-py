@@ -118,7 +118,7 @@ class TestMCPServer:
     async def test_list_tools_readonly_hint(
         self, mock_load_clusters, mock_generate_tools, mock_get_tools, mock_apply_config
     ):
-        """Test that list_tools sets readOnlyHint=True for GET-only tools and False otherwise."""
+        """Test that list_tools uses explicit read_only_hint metadata."""
         registry = {
             'ReadOnlyTool': {
                 'display_name': 'ReadOnlyTool',
@@ -127,6 +127,16 @@ class TestMCPServer:
                 'args_model': Mock(),
                 'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
                 'http_methods': 'GET',
+                'read_only_hint': True,
+            },
+            'ReadOnlySearchTool': {
+                'display_name': 'ReadOnlySearchTool',
+                'description': 'A search tool that accepts request bodies over POST',
+                'input_schema': {'type': 'object'},
+                'args_model': Mock(),
+                'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
+                'http_methods': 'GET, POST',
+                'read_only_hint': True,
             },
             'WriteTool': {
                 'display_name': 'WriteTool',
@@ -135,6 +145,7 @@ class TestMCPServer:
                 'args_model': Mock(),
                 'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
                 'http_methods': 'POST',
+                'read_only_hint': False,
             },
         }
         mock_apply_config.return_value = registry
@@ -153,6 +164,7 @@ class TestMCPServer:
         tools = {t.name: t for t in result.root.tools}
 
         assert tools['ReadOnlyTool'].annotations.readOnlyHint is True
+        assert tools['ReadOnlySearchTool'].annotations.readOnlyHint is True
         assert tools['WriteTool'].annotations.readOnlyHint is False
 
     @pytest.mark.asyncio
