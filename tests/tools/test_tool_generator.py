@@ -223,6 +223,7 @@ class TestToolGenerator:
             assert 'input_schema' in tool
             assert 'function' in tool
             assert 'args_model' in tool
+            assert tool['read_only_hint'] is True
 
             # Test the tool function with proper Pydantic model
             class MockParams(BaseModel):

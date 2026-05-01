@@ -280,6 +280,7 @@ class TestSkillsTools:
             assert 'args_model' in self.SKILLS_TOOLS_REGISTRY[tool]
             assert 'min_version' in self.SKILLS_TOOLS_REGISTRY[tool]
             assert 'http_methods' in self.SKILLS_TOOLS_REGISTRY[tool]
+            assert 'read_only_hint' in self.SKILLS_TOOLS_REGISTRY[tool]
 
     def test_data_distribution_tool_args_validation(self):
         """Test DataDistributionToolArgs validation."""

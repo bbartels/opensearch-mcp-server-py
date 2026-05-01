@@ -66,10 +66,11 @@ MOCK_TOOL_REGISTRY = {
 
 
 class TestIsReadOnlyTool:
-    def test_get_only_tool_is_read_only(self):
-        assert is_read_only_tool({'http_methods': 'GET'}) is True
+    def test_tools_require_explicit_read_only_hint(self):
+        assert is_read_only_tool({'http_methods': 'GET'}) is False
+        assert is_read_only_tool({'http_methods': 'POST'}) is False
 
-    def test_explicit_read_only_hint_overrides_http_methods(self):
+    def test_explicit_read_only_hint_is_the_source_of_truth(self):
         assert is_read_only_tool({'http_methods': 'POST', 'read_only_hint': True}) is True
         assert is_read_only_tool({'http_methods': 'GET', 'read_only_hint': False}) is False
 
@@ -318,15 +319,51 @@ class TestProcessToolFilter:
     def setup_method(self):
         """Set up a fresh copy of the tool registry for each test."""
         self.tool_registry = {
-            'ListIndexTool': {'display_name': 'ListIndexTool', 'http_methods': 'GET'},
-            'SearchIndexTool': {'display_name': 'SearchIndexTool', 'http_methods': 'GET, POST'},
-            'MsearchTool': {'display_name': 'MsearchTool', 'http_methods': 'GET, POST'},
-            'ExplainTool': {'display_name': 'ExplainTool', 'http_methods': 'GET, POST'},
-            'ClusterHealthTool': {'display_name': 'ClusterHealthTool', 'http_methods': 'GET'},
-            'IndicesCreateTool': {'display_name': 'IndicesCreateTool', 'http_methods': 'PUT'},
-            'IndicesStatsTool': {'display_name': 'IndicesStatsTool', 'http_methods': 'GET'},
-            'CountTool': {'display_name': 'CustomCountTool', 'http_methods': 'GET'},
-            'ListModelTool': {'display_name': 'ModelListTool', 'http_methods': 'GET'},
+            'ListIndexTool': {
+                'display_name': 'ListIndexTool',
+                'http_methods': 'GET',
+                'read_only_hint': True,
+            },
+            'SearchIndexTool': {
+                'display_name': 'SearchIndexTool',
+                'http_methods': 'GET, POST',
+                'read_only_hint': True,
+            },
+            'MsearchTool': {
+                'display_name': 'MsearchTool',
+                'http_methods': 'GET, POST',
+                'read_only_hint': True,
+            },
+            'ExplainTool': {
+                'display_name': 'ExplainTool',
+                'http_methods': 'GET, POST',
+                'read_only_hint': True,
+            },
+            'ClusterHealthTool': {
+                'display_name': 'ClusterHealthTool',
+                'http_methods': 'GET',
+                'read_only_hint': True,
+            },
+            'IndicesCreateTool': {
+                'display_name': 'IndicesCreateTool',
+                'http_methods': 'PUT',
+                'read_only_hint': False,
+            },
+            'IndicesStatsTool': {
+                'display_name': 'IndicesStatsTool',
+                'http_methods': 'GET',
+                'read_only_hint': True,
+            },
+            'CountTool': {
+                'display_name': 'CustomCountTool',
+                'http_methods': 'GET',
+                'read_only_hint': True,
+            },
+            'ListModelTool': {
+                'display_name': 'ModelListTool',
+                'http_methods': 'GET',
+                'read_only_hint': True,
+            },
         }
         self.category_to_tools = {
             'critical': ['SearchIndexTool', 'ExplainTool'],

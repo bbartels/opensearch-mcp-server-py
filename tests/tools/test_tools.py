@@ -1438,3 +1438,4 @@ class TestListClustersTool:
         assert tool_info['display_name'] == 'ListClustersTool'
         assert tool_info['multi_only'] is True
         assert tool_info['http_methods'] == 'GET'
+        assert tool_info['read_only_hint'] is True
