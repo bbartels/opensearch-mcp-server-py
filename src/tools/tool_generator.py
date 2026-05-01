@@ -214,6 +214,7 @@ def generate_tool_from_group(base_name: str, endpoints: List[Dict]) -> Dict[str,
     # Get the HTTP method(s) used by the endpoints
     methods = set(endpoint['method'].upper() for endpoint in endpoints)
     http_methods = ', '.join(sorted(methods))
+    read_only_hint = methods == {'GET'}
 
     all_parameters, path_parameters, required_parameters = extract_parameters(endpoints)
     # Create Pydantic model for arguments
@@ -295,6 +296,7 @@ def generate_tool_from_group(base_name: str, endpoints: List[Dict]) -> Dict[str,
         'min_version': min_version,
         'max_version': max_version,
         'http_methods': http_methods,
+        'read_only_hint': read_only_hint,
     }
 
 

@@ -134,6 +134,12 @@ class TestTools:
         """Cleanup after each test method."""
         self.init_client_patcher.stop()
 
+    def test_tool_registry_has_explicit_read_only_hints(self):
+        """Test that static tool metadata declares read_only_hint explicitly."""
+        for tool_name, tool_info in self.TOOL_REGISTRY.items():
+            assert 'read_only_hint' in tool_info, f'{tool_name} missing read_only_hint'
+            assert isinstance(tool_info['read_only_hint'], bool)
+
     @pytest.mark.asyncio
     async def test_list_indices_tool_default_full(self):
         """Default behavior: returns full JSON info for all indices (include_detail=True)."""
@@ -1438,3 +1444,4 @@ class TestListClustersTool:
         assert tool_info['display_name'] == 'ListClustersTool'
         assert tool_info['multi_only'] is True
         assert tool_info['http_methods'] == 'GET'
+        assert tool_info['read_only_hint'] is True

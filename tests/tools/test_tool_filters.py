@@ -1,7 +1,7 @@
 import pytest
 from semver import Version
 from unittest.mock import patch, MagicMock
-from tools.utils import is_tool_compatible
+from tools.utils import is_read_only_tool, is_tool_compatible
 from tools.tool_filter import get_tools, process_tool_filter
 from tools.tool_params import baseToolArgs
 import copy
@@ -104,6 +104,17 @@ class TestIsToolCompatible:
             is_tool_compatible(Version.parse('1.0.0'), {'min_version': 'not_a_version'})
         with pytest.raises(ValueError):
             is_tool_compatible(Version.parse('1.0.0'), {'max_version': 'not_a_version'})
+
+
+class TestIsReadOnlyTool:
+    def test_explicit_true(self):
+        assert is_read_only_tool({'read_only_hint': True, 'http_methods': 'POST'}) is True
+
+    def test_explicit_false(self):
+        assert is_read_only_tool({'read_only_hint': False, 'http_methods': 'GET'}) is False
+
+    def test_missing_hint_defaults_false(self):
+        assert is_read_only_tool({'http_methods': 'GET'}) is False
 
 
 class TestGetTools:

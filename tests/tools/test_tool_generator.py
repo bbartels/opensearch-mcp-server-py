@@ -223,6 +223,7 @@ class TestToolGenerator:
             assert 'input_schema' in tool
             assert 'function' in tool
             assert 'args_model' in tool
+            assert tool['read_only_hint'] is True
 
             # Test the tool function with proper Pydantic model
             class MockParams(BaseModel):
@@ -241,6 +242,32 @@ class TestToolGenerator:
             assert len(result) == 1
             assert result[0].type == 'text'
             mock_tool_function.assert_called_once()
+
+    def test_generate_tool_from_group_sets_mixed_methods_not_read_only(self):
+        endpoints = [
+            {
+                'path': '/_search',
+                'method': 'get',
+                'details': {
+                    'description': 'Searches documents',
+                    'x-operation-group': 'search',
+                },
+            },
+            {
+                'path': '/_search',
+                'method': 'post',
+                'details': {
+                    'description': 'Searches documents',
+                    'x-operation-group': 'search',
+                    'requestBody': {'content': {'application/json': {'schema': {}}}},
+                },
+            },
+        ]
+
+        tool = self.generate_tool_from_group('Search', endpoints)
+
+        assert tool['http_methods'] == 'GET, POST'
+        assert tool['read_only_hint'] is False
 
     @pytest.mark.asyncio
     async def test_generate_tools_from_openapi(self):
