@@ -924,6 +924,7 @@ TOOL_REGISTRY = {
         'function': search_index_tool,
         'args_model': SearchIndexArgs,
         'http_methods': 'GET, POST',
+        'read_only_hint': True,
     },
     'GetShardsTool': {
         'display_name': 'GetShardsTool',
@@ -1104,6 +1105,7 @@ TOOL_REGISTRY = {
         'args_model': SearchQuerySetsArgs,
         'min_version': '3.5.0',
         'http_methods': 'GET, POST',
+        'read_only_hint': True,
     },
     'SearchSearchConfigurationsTool': {
         'display_name': 'SearchSearchConfigurationsTool',
@@ -1117,6 +1119,7 @@ TOOL_REGISTRY = {
         'args_model': SearchSearchConfigurationsArgs,
         'min_version': '3.5.0',
         'http_methods': 'GET, POST',
+        'read_only_hint': True,
     },
     'SearchJudgmentsTool': {
         'display_name': 'SearchJudgmentsTool',
@@ -1130,6 +1133,7 @@ TOOL_REGISTRY = {
         'args_model': SearchJudgmentsArgs,
         'min_version': '3.5.0',
         'http_methods': 'GET, POST',
+        'read_only_hint': True,
     },
     'SearchExperimentsTool': {
         'display_name': 'SearchExperimentsTool',
@@ -1143,6 +1147,7 @@ TOOL_REGISTRY = {
         'args_model': SearchExperimentsArgs,
         'min_version': '3.5.0',
         'http_methods': 'GET, POST',
+        'read_only_hint': True,
     },
     'GenericOpenSearchApiTool': {
         'display_name': 'GenericOpenSearchApiTool',

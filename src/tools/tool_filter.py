@@ -8,6 +8,7 @@ import logging
 from .tool_params import baseToolArgs
 from .tools import TOOL_REGISTRY
 from .utils import (
+    is_read_only_tool,
     is_tool_compatible,
     parse_comma_separated,
     load_yaml_config,
@@ -100,10 +101,13 @@ def _resolve_allow_write_setting(config_file_path: str = None) -> bool:
 
 
 def apply_write_filter(registry):
-    """Apply allow_write filters to the registry."""
+    """Apply allow_write filters to the registry.
+
+    When writes are disabled, retain tools that are logically read-only even if
+    their backing OpenSearch APIs may use POST for query-style operations.
+    """
     for tool_name in list(registry.keys()):
-        http_methods = registry[tool_name].get('http_methods', [])
-        if 'GET' not in http_methods:
+        if not is_read_only_tool(registry[tool_name]):
             registry.pop(tool_name, None)
 
 

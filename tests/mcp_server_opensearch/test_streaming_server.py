@@ -136,6 +136,15 @@ class TestMCPServer:
                 'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
                 'http_methods': 'POST',
             },
+            'LogicalReadOnlyPostTool': {
+                'display_name': 'LogicalReadOnlyPostTool',
+                'description': 'A logically read-only POST tool',
+                'input_schema': {'type': 'object'},
+                'args_model': Mock(),
+                'function': AsyncMock(return_value=[TextContent(type='text', text='ok')]),
+                'http_methods': 'POST',
+                'read_only_hint': True,
+            },
         }
         mock_apply_config.return_value = registry
         mock_get_tools.return_value = registry
@@ -154,6 +163,7 @@ class TestMCPServer:
 
         assert tools['ReadOnlyTool'].annotations.readOnlyHint is True
         assert tools['WriteTool'].annotations.readOnlyHint is False
+        assert tools['LogicalReadOnlyPostTool'].annotations.readOnlyHint is True
 
     @pytest.mark.asyncio
     @patch('mcp_server_opensearch.streaming_server.get_tools')

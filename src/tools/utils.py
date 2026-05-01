@@ -51,24 +51,32 @@ def load_yaml_config(filter_path):
         return None
 
 
-def is_read_only_tool(tool_info: dict) -> bool:
-    """Determine if a tool is read-only based on its HTTP methods metadata.
-
-    A tool is considered read-only when its http_methods metadata consists
-    exclusively of GET. This is used to set the MCP readOnlyHint annotation.
-
-    Args:
-        tool_info (dict): Tool metadata containing an optional 'http_methods' key.
-
-    Returns:
-        bool: True if the tool only uses GET, False otherwise.
-    """
+def parse_http_methods(tool_info: dict) -> set[str]:
+    """Parse a tool's HTTP methods metadata into a normalized set."""
     http_methods = tool_info.get('http_methods', '')
     if isinstance(http_methods, str):
-        methods = {m.strip().upper() for m in http_methods.split(',') if m.strip()}
-    else:
-        methods = {m.upper() for m in http_methods}
-    return methods == {'GET'}
+        return {m.strip().upper() for m in http_methods.split(',') if m.strip()}
+    return {m.upper() for m in http_methods}
+
+
+def is_read_only_tool(tool_info: dict) -> bool:
+    """Determine if a tool should be treated as read-only.
+
+    Prefer an explicit logical read-only hint when present, since some tools are
+    semantically read-only even when the underlying OpenSearch API supports POST.
+    Fall back to treating GET-only tools as read-only.
+
+    Args:
+        tool_info (dict): Tool metadata containing optional 'read_only_hint' and
+            'http_methods' keys.
+
+    Returns:
+        bool: True if the tool is logically read-only, False otherwise.
+    """
+    if 'read_only_hint' in tool_info:
+        return bool(tool_info['read_only_hint'])
+
+    return parse_http_methods(tool_info) == {'GET'}
 
 
 def validate_tools(tool_list, display_lookup, source_name):

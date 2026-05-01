@@ -91,6 +91,7 @@ SKILLS_TOOLS_REGISTRY = {
         'args_model': DataDistributionToolArgs,
         'min_version': '3.3.0',
         'http_methods': 'POST',
+        'read_only_hint': True,
     },
     'LogPatternAnalysisTool': {
         'display_name': 'LogPatternAnalysisTool',
@@ -100,5 +101,6 @@ SKILLS_TOOLS_REGISTRY = {
         'args_model': LogPatternAnalysisToolArgs,
         'min_version': '3.3.0',
         'http_methods': 'POST',
+        'read_only_hint': True,
     },
 }
