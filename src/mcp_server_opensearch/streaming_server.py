@@ -2,25 +2,26 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import logging
-import uvicorn
 import contextlib
+import logging
 from typing import AsyncIterator
+import uvicorn
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
 from mcp.types import TextContent, Tool, ToolAnnotations
+from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from mcp_server_opensearch.clusters_information import load_clusters_from_yaml
-from mcp_server_opensearch.global_state import set_mode, set_profile, set_config_file_path
+from mcp_server_opensearch.global_state import set_config_file_path, set_mode, set_profile
+from mcp_server_opensearch.server_instructions import get_server_instructions
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.routing import Mount, Route
+from starlette.types import Receive, Scope, Send
+from tools.config import apply_custom_tool_config
 from tools.tool_filter import get_tools
 from tools.tool_generator import generate_tools_from_openapi
-from starlette.types import Scope, Receive, Send
-from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
 from tools.tools import TOOL_REGISTRY
-from tools.config import apply_custom_tool_config
 from tools.utils import is_read_only_tool
 
 
@@ -30,6 +31,7 @@ async def create_mcp_server(
     config_file_path: str = '',
     cli_tool_overrides: dict | None = None,
 ) -> Server:
+    """Create and configure the MCP server instance."""
     # Set the global mode
     set_mode(mode)
 
@@ -45,7 +47,8 @@ async def create_mcp_server(
     if mode == 'multi':
         await load_clusters_from_yaml(config_file_path)
 
-    server = Server('opensearch-mcp-server')
+    # Server instructions guide the LLM on dynamic connection params (single mode only)
+    server = Server('opensearch-mcp-server', instructions=get_server_instructions())
     # Call tool generator
     await generate_tools_from_openapi()
     # Apply custom tool config (custom name and description)
@@ -82,7 +85,10 @@ async def create_mcp_server(
 
 
 class MCPStarletteApp:
+    """Starlette application wrapper for the MCP server."""
+
     def __init__(self, mcp_server: Server, stateless: bool = True):
+        """Initialize the MCP Starlette application."""
         self.mcp_server = mcp_server
         self.sse = SseServerTransport('/messages/')
         self.session_manager = StreamableHTTPSessionManager(
@@ -93,6 +99,7 @@ class MCPStarletteApp:
         )
 
     async def handle_sse(self, request: Request) -> Response:
+        """Handle SSE connection requests."""
         async with self.sse.connect_sse(
             request.scope,
             request.receive,
@@ -108,12 +115,13 @@ class MCPStarletteApp:
         return Response()
 
     async def handle_health(self, request: Request) -> Response:
+        """Handle health check requests."""
         return Response('OK', status_code=200)
 
     @contextlib.asynccontextmanager
     async def lifespan(self, app: Starlette) -> AsyncIterator[None]:
-        """
-        Context manager for session manager lifecycle.
+        """Context manager for session manager lifecycle.
+
         Ensures proper startup and shutdown of the session manager.
         """
         from mcp_server_opensearch.logging_config import start_memory_monitor
@@ -136,6 +144,7 @@ class MCPStarletteApp:
         await self.session_manager.handle_request(scope, receive, send)
 
     def create_app(self) -> Starlette:
+        """Create the Starlette application with routes."""
         return Starlette(
             routes=[
                 Route('/sse', endpoint=self.handle_sse, methods=['GET']),
@@ -149,7 +158,7 @@ class MCPStarletteApp:
 
 
 async def serve(
-    host: str = '0.0.0.0',
+    host: str = '127.0.0.1',
     port: int = 9900,
     mode: str = 'single',
     profile: str = '',
@@ -157,6 +166,7 @@ async def serve(
     cli_tool_overrides: dict | None = None,
     stateless: bool = True,
 ) -> None:
+    """Start the MCP server in streaming HTTP mode."""
     mcp_server = await create_mcp_server(mode, profile, config_file_path, cli_tool_overrides)
     app_handler = MCPStarletteApp(mcp_server, stateless=stateless)
     app = app_handler.create_app()

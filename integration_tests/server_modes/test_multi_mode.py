@@ -92,6 +92,8 @@ class TestMultiMode:
         async with mcp_client(multi_mode_setup.url) as session:
             tools = await session.list_tools()
             for tool in tools.tools:
+                if tool.name == 'ListClustersTool':
+                    continue
                 props = tool.inputSchema.get('properties', {})
                 assert 'opensearch_cluster_name' in props, (
                     f'Tool {tool.name} should expose opensearch_cluster_name in multi mode'

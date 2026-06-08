@@ -4,14 +4,14 @@
 import pytest
 import pytest_asyncio
 from mcp.types import TextContent
-from unittest.mock import AsyncMock, Mock, patch, MagicMock, ANY
+from unittest.mock import ANY, AsyncMock, Mock, patch
 
 
 @pytest.fixture(autouse=True)
 def patch_opensearch_version():
     """Mock OpenSearch client and version check."""
-    from unittest.mock import AsyncMock
     from semver import Version
+    from unittest.mock import AsyncMock
 
     mock_client = Mock()
     mock_client.info = AsyncMock(return_value={'version': {'number': '3.0.0'}})
@@ -89,10 +89,10 @@ class TestMCPServer:
         mock_load_clusters.return_value = None
 
         # Create server
-        from mcp_server_opensearch.streaming_server import create_mcp_server
         from mcp.types import Tool
+        from mcp_server_opensearch.streaming_server import create_mcp_server
 
-        server = await create_mcp_server()
+        await create_mcp_server()
 
         # Get the tools by calling the decorated function
         tools = []
