@@ -1,8 +1,7 @@
 # Copyright OpenSearch Contributors
 # SPDX-License-Identifier: Apache-2.0
 
-"""
-Shared tool execution with structured logging for metrics.
+"""Shared tool execution with structured logging for metrics.
 
 Extracts the duplicated call_tool() logic from stdio_server.py and
 streaming_server.py into a single function that wraps tool invocation
@@ -18,8 +17,8 @@ tool invocation, enabling metric filters for:
 
 import logging
 import time
-
 from mcp.types import TextContent
+
 
 logger = logging.getLogger(__name__)
 

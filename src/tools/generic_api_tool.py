@@ -3,13 +3,13 @@
 
 import json
 import logging
-import os
+from .tool_logging import log_tool_error
+from .tool_params import baseToolArgs
+from .utils import format_json
+from pydantic import Field
 from typing import Any, Dict, Optional
 from urllib.parse import urlencode
 
-from .tool_logging import log_tool_error
-from .tool_params import baseToolArgs
-from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,9 @@ async def generic_opensearch_api_tool(args: GenericOpenSearchApiArgs) -> list[di
         if method not in valid_methods:
             return log_tool_error(
                 'GenericOpenSearchApiTool',
-                ValueError(f'Invalid HTTP method "{args.method}". Valid methods are: {", ".join(valid_methods)}'),
+                ValueError(
+                    f'Invalid HTTP method "{args.method}". Valid methods are: {", ".join(valid_methods)}'
+                ),
                 'validating request',
             )
 
@@ -104,7 +106,9 @@ async def generic_opensearch_api_tool(args: GenericOpenSearchApiArgs) -> list[di
         if method in write_methods and not allow_write:
             return log_tool_error(
                 'GenericOpenSearchApiTool',
-                PermissionError(f'Write operations are disabled. Method "{method}" is not allowed.'),
+                PermissionError(
+                    f'Write operations are disabled. Method "{method}" is not allowed.'
+                ),
                 'validating request',
             )
 
@@ -151,7 +155,7 @@ async def generic_opensearch_api_tool(args: GenericOpenSearchApiArgs) -> list[di
                 formatted_response = response
             else:
                 # Most APIs return JSON
-                formatted_response = json.dumps(response, separators=(',', ':'))
+                formatted_response = format_json(response)
 
             # Create descriptive message
             message = f'OpenSearch API Response ({method} {args.path})'
@@ -162,7 +166,9 @@ async def generic_opensearch_api_tool(args: GenericOpenSearchApiArgs) -> list[di
 
     except Exception as e:
         return log_tool_error(
-            'GenericOpenSearchApiTool', e,
+            'GenericOpenSearchApiTool',
+            e,
             f'calling OpenSearch API ({args.method} {args.path})',
-            method=args.method, path=args.path,
+            method=args.method,
+            path=args.path,
         )

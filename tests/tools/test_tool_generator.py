@@ -219,7 +219,7 @@ class TestToolGenerator:
                     'x-operation-group': 'count',
                     'requestBody': {'content': {'application/json': {'schema': {}}}},
                 },
-            }
+            },
         ]
 
         # Mock initialize_client to return our mock client
@@ -288,7 +288,9 @@ class TestToolGenerator:
                     'args_model': Mock(),
                     'read_only_hint': True,
                 }
-                with patch('tools.tool_generator.generate_tool_from_group', return_value=mock_tool):
+                with patch(
+                    'tools.tool_generator.generate_tool_from_group', return_value=mock_tool
+                ):
                     # Call the function
                     result = await self.generate_tools_from_openapi()
 
