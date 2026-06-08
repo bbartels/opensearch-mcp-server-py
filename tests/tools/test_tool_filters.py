@@ -418,6 +418,41 @@ class TestProcessToolFilter:
         assert 'ClusterHealthTool' not in self.tool_registry
         assert 'ExplainTool' not in self.tool_registry
 
+    def test_allow_write_filter_uses_read_only_hint_only(self):
+        """allow_write=False keeps semantically read-only POST tools."""
+        registry = {
+            'SemanticSearchTool': {
+                'display_name': 'SemanticSearchTool',
+                'http_methods': 'GET, POST',
+                'read_only_hint': True,
+            },
+            'PostAnalysisTool': {
+                'display_name': 'PostAnalysisTool',
+                'http_methods': 'POST',
+                'read_only_hint': True,
+            },
+            'MutatingGetTool': {
+                'display_name': 'MutatingGetTool',
+                'http_methods': 'GET',
+                'read_only_hint': False,
+            },
+            'MissingHintTool': {
+                'display_name': 'MissingHintTool',
+                'http_methods': 'GET',
+            },
+        }
+
+        process_tool_filter(
+            tool_registry=registry,
+            enabled_tools='SemanticSearchTool,PostAnalysisTool,MutatingGetTool,MissingHintTool',
+            allow_write=False,
+        )
+
+        assert 'SemanticSearchTool' in registry
+        assert 'PostAnalysisTool' in registry
+        assert 'MutatingGetTool' not in registry
+        assert 'MissingHintTool' not in registry
+
     def test_search_relevance_category_is_not_enabled_by_default(self):
         """search_relevance tools are not enabled unless the category is explicitly enabled."""
         registry = {

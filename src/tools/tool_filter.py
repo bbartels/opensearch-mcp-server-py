@@ -8,6 +8,7 @@ import logging
 from .tool_params import baseToolArgs
 from .tools import TOOL_REGISTRY
 from .utils import (
+    is_read_only_tool,
     is_tool_compatible,
     parse_comma_separated,
     load_yaml_config,
@@ -102,8 +103,7 @@ def _resolve_allow_write_setting(config_file_path: str = None) -> bool:
 def apply_write_filter(registry):
     """Apply allow_write filters to the registry."""
     for tool_name in list(registry.keys()):
-        http_methods = registry[tool_name].get('http_methods', [])
-        if 'GET' not in http_methods:
+        if not is_read_only_tool(registry[tool_name]):
             registry.pop(tool_name, None)
 
 
@@ -140,7 +140,7 @@ def process_tool_filter(
         disabled_categories: Comma-separated list of disabled category names
         enabled_tools_regex: Comma-separates list of enabled tools regex
         disabled_tools_regex: Comma-separated list of disabled tools regex
-        allow_write: If True, allow tools with PUT/POST methods
+        allow_write: If True, allow tools without read_only_hint
         filter_path: Path to the YAML filter configuration file
         tool_registry: The tool registry to filter.
     """
@@ -261,7 +261,7 @@ def process_tool_filter(
             disabled_tools_regex_list.extend(parse_comma_separated(disabled_tools_regex))
 
         # Apply allow_write filter first
-        if not allow_write:
+        if allow_write is False:
             apply_write_filter(tool_registry)
 
         # Process tools from categories and regex patterns
