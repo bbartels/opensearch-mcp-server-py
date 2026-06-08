@@ -725,9 +725,11 @@ class TestWriteFilterBypass:
             },
             'SearchMemoryTool': {
                 'http_methods': 'GET',
+                'read_only_hint': True,
             },
             'SomeWriteTool': {
                 'http_methods': 'POST',
+                'read_only_hint': False,
             },
         }
 

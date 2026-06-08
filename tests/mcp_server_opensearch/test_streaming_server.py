@@ -153,8 +153,8 @@ class TestMCPServer:
         mock_generate_tools.return_value = None
         mock_load_clusters.return_value = None
 
-        from mcp_server_opensearch.streaming_server import create_mcp_server
         from mcp.types import ListToolsRequest
+        from mcp_server_opensearch.streaming_server import create_mcp_server
 
         server = await create_mcp_server()
 

@@ -4,12 +4,11 @@
 import asyncio
 import contextlib
 import logging
-from typing import AsyncIterator
 import uvicorn
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
-from mcp.types import TextContent, Tool, ToolAnnotations
 from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
+from mcp.types import TextContent, Tool, ToolAnnotations
 from mcp_server_opensearch.clusters_information import load_clusters_from_yaml
 from mcp_server_opensearch.global_state import set_config_file_path, set_mode, set_profile
 from mcp_server_opensearch.server_instructions import get_server_instructions
@@ -23,6 +22,7 @@ from tools.tool_filter import get_tools
 from tools.tool_generator import generate_tools_from_openapi
 from tools.tools import TOOL_REGISTRY
 from tools.utils import is_read_only_tool
+from typing import AsyncIterator
 
 
 async def create_mcp_server(

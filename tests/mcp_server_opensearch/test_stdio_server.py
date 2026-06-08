@@ -213,7 +213,9 @@ async def test_list_tools_readonly_hint(mock_generate_tools):
     with (
         patch('mcp_server_opensearch.stdio_server.Server', RealServer),
         patch('mcp_server_opensearch.stdio_server.get_tools', side_effect=mock_get_tools),
-        patch('mcp_server_opensearch.stdio_server.apply_custom_tool_config', return_value=registry),
+        patch(
+            'mcp_server_opensearch.stdio_server.apply_custom_tool_config', return_value=registry
+        ),
         patch('mcp_server_opensearch.stdio_server.load_clusters_from_yaml'),
         patch('mcp_server_opensearch.stdio_server.stdio_server') as mock_stdio_ctx,
         patch('mcp_server_opensearch.logging_config.start_memory_monitor') as mock_monitor,
