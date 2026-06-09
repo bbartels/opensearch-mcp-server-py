@@ -52,10 +52,10 @@ def load_yaml_config(filter_path):
 
 
 def is_read_only_tool(tool_info: dict) -> bool:
-    """Determine if a tool should be treated as read-only.
+    """Determine if a tool should be annotated as read-only.
 
     The explicit read_only_hint metadata is the single source of truth for MCP
-    read-only annotations and allow_write filtering.
+    read-only annotations.
 
     Args:
         tool_info (dict): Tool metadata containing an optional 'read_only_hint' key.
@@ -64,6 +64,23 @@ def is_read_only_tool(tool_info: dict) -> bool:
         bool: True if the tool is logically read-only, False otherwise.
     """
     return bool(tool_info.get('read_only_hint', False))
+
+
+def is_available_when_write_disabled(tool_info: dict) -> bool:
+    """Determine if a tool should remain available when allow_write=False.
+
+    Most tools are kept only when they are logically read-only. Mixed-mode tools
+    that enforce write protection at runtime can opt in via
+    ``bypass_write_filter`` so read functionality remains available without
+    advertising the tool as MCP read-only.
+
+    Args:
+        tool_info (dict): Tool metadata containing optional write-filter flags.
+
+    Returns:
+        bool: True if the tool should remain registered when writes are disabled.
+    """
+    return is_read_only_tool(tool_info) or bool(tool_info.get('bypass_write_filter', False))
 
 
 def validate_tools(tool_list, display_lookup, source_name):

@@ -1178,6 +1178,7 @@ TOOL_REGISTRY = {
         'min_version': '1.0.0',
         'http_methods': 'GET, POST, PUT, DELETE, HEAD, PATCH',
         'read_only_hint': False,
+        'bypass_write_filter': True,
     },
     'CreateSearchConfigurationTool': {
         'display_name': 'CreateSearchConfigurationTool',

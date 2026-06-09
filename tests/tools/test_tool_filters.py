@@ -1,7 +1,7 @@
 import pytest
 from semver import Version
 from unittest.mock import patch, MagicMock
-from tools.utils import is_read_only_tool, is_tool_compatible
+from tools.utils import is_available_when_write_disabled, is_read_only_tool, is_tool_compatible
 from tools.tool_filter import get_tools, process_tool_filter
 from tools.tool_params import baseToolArgs
 import copy
@@ -73,6 +73,17 @@ class TestIsReadOnlyTool:
     def test_explicit_read_only_hint_is_the_source_of_truth(self):
         assert is_read_only_tool({'http_methods': 'POST', 'read_only_hint': True}) is True
         assert is_read_only_tool({'http_methods': 'GET', 'read_only_hint': False}) is False
+
+
+class TestWriteAvailability:
+    def test_bypass_write_filter_keeps_mixed_mode_tool_available(self):
+        tool_info = {
+            'http_methods': 'GET, POST, PUT, DELETE, HEAD, PATCH',
+            'read_only_hint': False,
+            'bypass_write_filter': True,
+        }
+
+        assert is_available_when_write_disabled(tool_info) is True
 
 
 class TestIsToolCompatible:
@@ -451,7 +462,7 @@ class TestProcessToolFilter:
         assert 'IndicesStatsTool' not in self.tool_registry
         assert 'ListModelTool' not in self.tool_registry
 
-    def test_allow_write_false_keeps_logically_read_only_post_tools(self):
+    def test_allow_write_false_keeps_logically_read_only_and_runtime_guarded_tools(self):
         registry = {
             'SearchIndexTool': {
                 'display_name': 'SearchIndexTool',
@@ -463,6 +474,12 @@ class TestProcessToolFilter:
                 'http_methods': 'POST',
                 'read_only_hint': True,
             },
+            'GenericOpenSearchApiTool': {
+                'display_name': 'GenericOpenSearchApiTool',
+                'http_methods': 'GET, POST, PUT, DELETE, HEAD, PATCH',
+                'read_only_hint': False,
+                'bypass_write_filter': True,
+            },
             'CreateQuerySetTool': {
                 'display_name': 'CreateQuerySetTool',
                 'http_methods': 'PUT',
@@ -471,12 +488,13 @@ class TestProcessToolFilter:
 
         process_tool_filter(
             tool_registry=registry,
-            enabled_tools='SearchIndexTool,DataDistributionTool,CreateQuerySetTool',
+            enabled_tools='SearchIndexTool,DataDistributionTool,GenericOpenSearchApiTool,CreateQuerySetTool',
             allow_write=False,
         )
 
         assert 'SearchIndexTool' in registry
         assert 'DataDistributionTool' in registry
+        assert 'GenericOpenSearchApiTool' in registry
         assert 'CreateQuerySetTool' not in registry
 
     def test_disable_core_tools(self):
