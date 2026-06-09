@@ -834,7 +834,9 @@ class TestAllowWriteCategories:
 
         assert 'ListIndexTool' in registry
         assert 'SearchIndexTool' in registry
-        assert 'GenericOpenSearchApiTool' in registry  # mixed-mode tool bypasses filter, runtime still blocks writes
+        assert (
+            'GenericOpenSearchApiTool' in registry
+        )  # mixed-mode tool bypasses filter, runtime still blocks writes
         assert 'CreateQuerySetTool' not in registry  # PUT only, removed
         assert 'DeleteQuerySetTool' not in registry  # DELETE only, removed
 
