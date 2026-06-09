@@ -1207,6 +1207,7 @@ TOOL_REGISTRY = {
         'args_model': GenericOpenSearchApiArgs,
         'min_version': '1.0.0',
         'http_methods': 'GET, POST, PUT, DELETE, HEAD, PATCH',
+        'bypass_write_filter': True,
     },
     'CreateSearchConfigurationTool': {
         'display_name': 'CreateSearchConfigurationTool',

@@ -827,13 +827,14 @@ class TestAllowWriteCategories:
                 'display_name': 'GenericOpenSearchApiTool',
                 'http_methods': 'GET, POST, PUT, DELETE, HEAD, PATCH',
                 'read_only_hint': False,
+                'bypass_write_filter': True,
             },
         }
         process_tool_filter(tool_registry=registry, allow_write=False)
 
         assert 'ListIndexTool' in registry
         assert 'SearchIndexTool' in registry
-        assert 'GenericOpenSearchApiTool' not in registry
+        assert 'GenericOpenSearchApiTool' in registry  # mixed-mode tool bypasses filter, runtime still blocks writes
         assert 'CreateQuerySetTool' not in registry  # PUT only, removed
         assert 'DeleteQuerySetTool' not in registry  # DELETE only, removed
 
@@ -869,6 +870,7 @@ class TestAllowWriteCategories:
                 'display_name': 'GenericOpenSearchApiTool',
                 'http_methods': 'GET, POST, PUT, DELETE, HEAD, PATCH',
                 'read_only_hint': False,
+                'bypass_write_filter': True,
             },
             'IndicesCreateTool': {
                 'display_name': 'IndicesCreateTool',
@@ -888,10 +890,11 @@ class TestAllowWriteCategories:
         assert 'DeleteQuerySetTool' in registry
         assert 'GetQuerySetTool' in registry
 
-        # core_tools with GET survive normally
+        # core_tools with GET survive normally; GenericOpenSearchApiTool also survives
+        # because it bypasses registry filtering and enforces write protection at runtime.
         assert 'ListIndexTool' in registry
         assert 'SearchIndexTool' in registry
-        assert 'GenericOpenSearchApiTool' not in registry
+        assert 'GenericOpenSearchApiTool' in registry
 
         # Non-exempted write-only tool is removed
         assert 'IndicesCreateTool' not in registry
